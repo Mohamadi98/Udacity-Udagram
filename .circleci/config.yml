@@ -6,7 +6,7 @@ orbs:
   aws-cli: circleci/aws-cli@3.1.1
   # different jobs are calles later in the workflows sections
 jobs:
-  build:
+  deploy:
     docker:
       # the base image can run most needed actions with orbs
       - image: "cimg/node:14.15"
@@ -15,6 +15,8 @@ jobs:
       - node/install:
           node-version: '14.15'         
       - checkout
+      - eb/setup
+      - aws-cli/setup
       # Use root level package.json to install dependencies in the frontend app
       - run:
           name: Install Front-End Dependencies
@@ -48,36 +50,35 @@ jobs:
           command: |
             echo "TODO: Build the backend API"
             npm run api:build
-  # deploy step will run only after manual approval
-  deploy:
-    docker:
-      - image: "cimg/base:stable"
-    # more setup needed for aws, node, elastic beanstalk
-    steps:
-      - node/install:
-          node-version: '14.15' 
-      - eb/setup
-      - aws-cli/setup
-      - checkout
-      - run:
+
           name: Deploy App
-          # TODO: Install, build, deploy in both apps
+           #TODO: Install, build, deploy in both apps
           command: |
             echo "# TODO: Install, build, deploy in both apps"
             npm run deploy
+  # deploy step will run only after manual approval
+  #deploy:
+   # docker:
+    #  - image: "cimg/base:stable"
+    # more setup needed for aws, node, elastic beanstalk
+    #steps:
+     # - node/install:
+      #    node-version: '14.15' 
+      #- eb/setup
+      #- aws-cli/setup
+      #- checkout
+      #- run:
+       #   name: Deploy App
+          # TODO: Install, build, deploy in both apps
+        #  command: |
+         #   echo "# TODO: Install, build, deploy in both apps"
+          #  npm run deploy
             
 workflows:
   udagram:
     jobs:
-      - build
-      - hold:
+      - deploy:
           filters:
             branches:
               only:
                 - main
-          type: approval
-          requires:
-            - build
-      - deploy:
-          requires:
-            - hold
